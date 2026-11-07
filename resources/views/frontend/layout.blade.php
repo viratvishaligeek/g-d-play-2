@@ -36,7 +36,6 @@
                 <span class="site-brand__mark">{{ $siteSettings['title'] }}</span><span class="site-brand__num">LIVE</span>
             @endif
         </a>
-        <button class="site-nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" data-nav-toggle><span></span><span></span><span></span><b class="sr-only">Toggle navigation</b></button>
         <nav class="site-nav" id="primary-nav" aria-label="Primary navigation">
             <a class="site-nav__link {{ request()->routeIs('home') ? 'is-active' : '' }}" href="{{ route('home') }}">Home</a>
             <a class="site-nav__link {{ request()->routeIs('guessing') ? 'is-active' : '' }}" href="{{ route('guessing') }}">Guessing</a>
