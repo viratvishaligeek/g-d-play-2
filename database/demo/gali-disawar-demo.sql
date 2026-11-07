@@ -119,7 +119,7 @@ SELECT @site_key,'Privacy Policy','privacy-policy','<!-- GALI_DEMO_SEED --><h2>P
 WHERE NOT EXISTS (SELECT 1 FROM pages WHERE site_key=@site_key AND slug='privacy-policy');
 INSERT INTO pages
 (site_key,name,slug,content,status,is_editable,menu_visible,menu_order,meta_title,meta_description,meta_keywords,noindex,created_at,updated_at)
-SELECT @site_key,'Terms & Conditions','terms-conditions','<!-- GALI_DEMO_SEED --><h2>Terms & Conditions</h2><p>Replace this sample page with approved terms before launch.</p>','active','yes',1,92,'Demo Terms & Conditions | Gali Disawar','Demo terms page for theme preview.','Gali Disawar, Terms',1,NOW(),NOW()
+SELECT @site_key,'Terms & Conditions','terms-and-conditions','<!-- GALI_DEMO_SEED --><h2>Terms & Conditions</h2><p>Replace this sample page with approved terms before launch.</p>','active','yes',1,92,'Demo Terms & Conditions | Gali Disawar','Demo terms page for theme preview.','Gali Disawar, Terms',1,NOW(),NOW()
 WHERE NOT EXISTS (SELECT 1 FROM pages WHERE site_key=@site_key AND slug='terms-conditions');
 
 -- Sample logo and favicon files are committed in public/logos in this repository.
