@@ -18,6 +18,7 @@
         @if(filled($siteSettings['guessing_register_url_safe'] ?? null))<a class="buttonb" href="{{ $siteSettings['guessing_register_url_safe'] }}" target="_blank" rel="noopener noreferrer">Register ↗</a>@endif
         @if(filled($siteSettings['guessing_submit_url_safe'] ?? null))<a class="buttonb bggreen" href="{{ $siteSettings['guessing_submit_url_safe'] }}" target="_blank" rel="noopener noreferrer">Submit a Post ↗</a>@endif
     </div>
+</div>
 </section>
 
 <section class="market-list">
