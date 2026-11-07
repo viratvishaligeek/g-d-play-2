@@ -31,10 +31,10 @@ class DynamicGaliFrontendTest extends TestCase
             $table->id(); $table->string('site_key'); $table->string('title'); $table->longText('content')->nullable();
             $table->string('status')->default('active'); $table->string('location')->nullable();
             $table->string('phone')->nullable(); $table->string('whatsapp')->nullable(); $table->string('telegram')->nullable();
-            $table->string('background')->nullable(); $table->timestamps(); $table->softDeletes();
+            $table->string('background')->nullable(); $table->string('image')->nullable(); $table->string('image_alt')->nullable(); $table->string('button_label')->nullable(); $table->string('button_url')->nullable(); $table->string('button_style')->nullable(); $table->string('layout')->nullable(); $table->unsignedInteger('display_order')->default(0); $table->timestamps(); $table->softDeletes();
         });
         Schema::create('faqs', function (Blueprint $table) {
-            $table->id(); $table->string('site_key'); $table->string('question'); $table->text('answer'); $table->timestamps();
+            $table->id(); $table->string('site_key'); $table->string('question'); $table->text('answer'); $table->string('platform', 8)->default('both'); $table->timestamps();
         });
         Schema::create('pages', function (Blueprint $table) {
             $table->id(); $table->string('site_key'); $table->string('name'); $table->string('slug');
@@ -66,11 +66,22 @@ class DynamicGaliFrontendTest extends TestCase
         ]);
         DB::table('home_pages')->insert([
             'site_key' => 'galidisawar', 'title' => 'Managed Gali notice', 'content' => '<p>Managed notice content</p>',
-            'status' => 'active', 'location' => 'first_place', 'created_at' => now(), 'updated_at' => now(),
+            'status' => 'active', 'location' => 'first_place', 'image' => 'https://placehold.co/640x360/111827/ffffff?text=Demo', 'image_alt' => 'Demo image', 'button_label' => 'Browse Demo Section', 'button_url' => '/chart', 'button_style' => 'primary', 'layout' => 'image-left', 'display_order' => 1, 'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        DB::table('settings')->insert([
+            ['site_key' => 'galidisawar', 'option' => 'title', 'value' => 'Gali Demo Brand', 'created_at' => now(), 'updated_at' => now()],
+            ['site_key' => 'galidisawar', 'option' => 'site_logo', 'value' => 'gali-demo-logo.svg', 'created_at' => now(), 'updated_at' => now()],
+            ['site_key' => 'galidisawar', 'option' => 'header_cta_label', 'value' => 'Open Chart', 'created_at' => now(), 'updated_at' => now()],
+            ['site_key' => 'galidisawar', 'option' => 'header_cta_url', 'value' => '/chart', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         $response = $this->get('/');
-        $response->assertOk()->assertSee('Gali')->assertSee('Managed notice content')->assertSee('Latest Published Result')->assertSee('42')->assertDontSee('Private Play Online Market');
+        $response->assertOk()->assertSee('Gali Demo Brand')->assertSee('Managed notice content')
+            ->assertSee('LATEST PUBLISHED RESULT')->assertSee('42')->assertSee('Browse Demo Section')
+            ->assertSee('https://placehold.co/640x360/111827/ffffff?text=Demo')
+            ->assertSee('/logos/gali-demo-logo.svg')->assertSee('Open Chart')
+            ->assertDontSee('Private Play Online Market');
     }
 
     public function test_cms_pages_and_seo_settings_are_site_scoped(): void
@@ -119,6 +130,8 @@ class DynamicGaliFrontendTest extends TestCase
         $this->get('/result/disawar')->assertOk()->assertSee('Disawar')->assertSee('87');
         $this->post('/get_result', ['slug' => 'disawar', 'year' => $year, 'month' => $month])
             ->assertOk()->assertJsonPath('game.slug', 'disawar')->assertJsonPath('days.0.result', '87');
+        $this->get('/chart')->assertOk()->assertSee('Disawar')->assertSee(\Carbon\Carbon::create()->month($month)->format('F'));
+        $this->get('/guessing')->assertOk()->assertSee('Market Guide');
         $this->get('/result/private-market')->assertNotFound();
     }
 }
