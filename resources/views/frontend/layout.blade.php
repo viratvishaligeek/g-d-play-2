@@ -9,7 +9,7 @@
     <meta name="keywords" content="{{ $siteSettings['meta_keywords'] ?? '' }}">
     <meta name="robots" content="{{ $siteSettings['robots_default'] ?? 'index,follow' }}">
     <link rel="canonical" href="@yield('canonical', !empty($siteSettings['canonical_url']) ? rtrim($siteSettings['canonical_url'], '/').'/' : config('gali.canonical_url').'/')">
-    <link rel="icon" href="{{ $siteSettings['site_favicon_url'] ?? asset('favicon.svg') }}">
+    <link rel="icon" href="{{ $siteSettings['site_favicon_url'] ?? asset('frontend/images/theme-favicon.png') }}">
     <meta property="og:title" content="{{ $siteSettings['og_title'] ?? ($siteSettings['meta_title'] ?? $siteSettings['title']) }}">
     <meta property="og:description" content="{{ $siteSettings['og_description'] ?? ($siteSettings['meta_description'] ?? $siteSettings['site_description'] ?? '') }}">
     <meta property="og:type" content="website">
