@@ -1,19 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const navToggle = document.querySelector('[data-nav-toggle]');
-    const nav = document.getElementById('primary-nav');
-    if (navToggle && nav) {
-        navToggle.addEventListener('click', function () {
-            const isOpen = nav.classList.toggle('is-open');
-            navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-        });
-        nav.querySelectorAll('a').forEach(function (link) {
-            link.addEventListener('click', function () {
-                nav.classList.remove('is-open');
-                navToggle.setAttribute('aria-expanded', 'false');
-            });
-        });
-    }
-
     const search = document.getElementById('market-search');
     const cards = Array.from(document.querySelectorAll('#market-grid [data-market-name]'));
     const empty = document.getElementById('no-markets');
