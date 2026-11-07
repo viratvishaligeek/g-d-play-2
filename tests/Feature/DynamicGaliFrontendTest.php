@@ -20,12 +20,12 @@ class DynamicGaliFrontendTest extends TestCase
         Schema::create('games', function (Blueprint $table) {
             $table->id(); $table->string('site_key'); $table->string('name'); $table->string('slug');
             $table->string('status')->default('active'); $table->unsignedInteger('serial')->default(0);
-            $table->time('result_time')->nullable(); $table->string('last_result')->nullable();
+            $table->time('result_time')->nullable(); $table->time('play_start')->nullable(); $table->time('play_end')->nullable(); $table->decimal('reward', 10, 2)->default(1); $table->string('last_result')->nullable();
             $table->timestamps(); $table->softDeletes();
         });
         Schema::create('results', function (Blueprint $table) {
             $table->id(); $table->string('site_key'); $table->unsignedBigInteger('game_id');
-            $table->date('game_date'); $table->string('type'); $table->string('number')->nullable(); $table->timestamps();
+            $table->date('game_date'); $table->string('type'); $table->string('number')->nullable(); $table->timestamps(); $table->unique(['game_id', 'game_date', 'type']);
         });
         Schema::create('home_pages', function (Blueprint $table) {
             $table->id(); $table->string('site_key'); $table->string('title'); $table->longText('content')->nullable();
@@ -45,7 +45,7 @@ class DynamicGaliFrontendTest extends TestCase
             $table->boolean('noindex')->default(false); $table->timestamps(); $table->softDeletes();
         });
         Schema::create('settings', function (Blueprint $table) {
-            $table->id(); $table->string('site_key'); $table->string('option'); $table->longText('value')->nullable(); $table->timestamps();
+            $table->id(); $table->string('site_key'); $table->string('option'); $table->longText('value')->nullable(); $table->timestamps(); $table->unique(['site_key', 'option']);
         });
     }
 
@@ -111,6 +111,42 @@ class DynamicGaliFrontendTest extends TestCase
             ->assertDontSee('Must not leak');
         $this->get('/')->assertOk()->assertSee('Gali Disawar SEO Title');
         $this->get('/private-page')->assertNotFound();
+    }
+
+    public function test_demo_seeder_is_repeatable_and_keeps_sample_data_site_scoped(): void
+    {
+        DB::table('games')->insert([
+            'site_key' => 'galidisawar', 'name' => 'Existing Live Market', 'slug' => 'existing-live-market',
+            'status' => 'active', 'serial' => 1, 'result_time' => '20:00:00',
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        app(\\Database\\Seeders\\GaliDisawarDemoSeeder::class)->run();
+        $firstCounts = [
+            'games' => DB::table('games')->where('site_key', 'galidisawar')->count(),
+            'results' => DB::table('results')->where('site_key', 'galidisawar')->count(),
+            'sections' => DB::table('home_pages')->where('site_key', 'galidisawar')->count(),
+            'faqs' => DB::table('faqs')->where('site_key', 'galidisawar')->count(),
+            'pages' => DB::table('pages')->where('site_key', 'galidisawar')->count(),
+        ];
+
+        app(\\Database\\Seeders\\GaliDisawarDemoSeeder::class)->run();
+        $secondCounts = [
+            'games' => DB::table('games')->where('site_key', 'galidisawar')->count(),
+            'results' => DB::table('results')->where('site_key', 'galidisawar')->count(),
+            'sections' => DB::table('home_pages')->where('site_key', 'galidisawar')->count(),
+            'faqs' => DB::table('faqs')->where('site_key', 'galidisawar')->count(),
+            'pages' => DB::table('pages')->where('site_key', 'galidisawar')->count(),
+        ];
+
+        $this->assertSame($firstCounts, $secondCounts);
+        $this->assertSame(7, $firstCounts['games']);
+        $this->assertSame(7, $firstCounts['sections']);
+        $this->assertSame(4, $firstCounts['faqs']);
+        $this->assertSame(3, $firstCounts['pages']);
+        $this->assertSame(0, DB::table('games')->where('site_key', 'play-online-khaiwal')->count());
+        $this->assertDatabaseHas('games', ['site_key' => 'galidisawar', 'slug' => 'existing-live-market']);
+        $this->assertDatabaseHas('settings', ['site_key' => 'galidisawar', 'option' => 'site_logo', 'value' => 'gali-demo-logo.svg']);
     }
 
     public function test_guessing_forum_reads_only_approved_posts_and_replies_for_this_site(): void
