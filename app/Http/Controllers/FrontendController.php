@@ -39,7 +39,7 @@ class FrontendController extends Controller
         $settings['site_logo_url'] = $this->logoUrl($settings['site_logo'] ?? null);
         $settings['site_favicon_url'] = $this->logoUrl($settings['site_favicon'] ?? null);
         $settings['og_image_url'] = $this->logoUrl($settings['og_image'] ?? null);
-        foreach (['header_cta_url', 'homepage_primary_cta_url', 'homepage_secondary_cta_url', 'social_facebook', 'social_whatsapp', 'social_instagram', 'social_youtube', 'social_telegram', 'app_download_url'] as $urlKey) {
+        foreach (['header_cta_url', 'homepage_primary_cta_url', 'homepage_secondary_cta_url', 'social_facebook', 'social_whatsapp', 'social_instagram', 'social_youtube', 'social_telegram', 'app_download_url', 'guessing_login_url', 'guessing_register_url', 'guessing_submit_url', 'guessing_report_url'] as $urlKey) {
             $settings[$urlKey.'_safe'] = $this->safeFrontendUrl($settings[$urlKey] ?? null);
         }
         view()->share('siteSettings', $settings);
@@ -270,8 +270,64 @@ class FrontendController extends Controller
     {
         $siteSettings = $this->shareNavigation();
         $games = $this->scoped('games')->where('status', 'active')->orderBy('serial')->get(['name', 'slug']);
+        $posts = collect();
+        if (Schema::hasTable('community_posts') && Schema::hasTable('users')) {
+            $posts = $this->scoped('community_posts')->where('community_posts.status', 'approved')
+                ->leftJoin('games', function ($join): void {
+                    $join->on('games.id', '=', 'community_posts.game_id')
+                        ->where('games.site_key', config('gali.site_key'));
+                    if (Schema::hasColumn('games', 'deleted_at')) {
+                        $join->whereNull('games.deleted_at');
+                    }
+                })
+                ->leftJoin('users', function ($join): void {
+                    $join->on('users.id', '=', 'community_posts.user_id')
+                        ->where('users.site_key', config('gali.site_key'));
+                    if (Schema::hasColumn('users', 'deleted_at')) {
+                        $join->whereNull('users.deleted_at');
+                    }
+                })
+                ->select(['community_posts.id', 'community_posts.title', 'community_posts.body', 'community_posts.created_at', 'games.name as game_name', 'users.name as author_name'])
+                ->orderByDesc('community_posts.created_at')->paginate(10);
+        }
         $siteName = $siteSettings['title'] ?? config('gali.site_name');
-        return view('frontend.guessing', compact('games', 'siteName'));
+        return view('frontend.guessing', compact('games', 'posts', 'siteName'));
+    }
+
+    public function guessingShow(int $postId)
+    {
+        $this->shareNavigation();
+        abort_unless(Schema::hasTable('community_posts') && Schema::hasTable('community_replies'), 404);
+        $post = $this->scoped('community_posts')->where('community_posts.status', 'approved')
+            ->where('community_posts.id', $postId)
+            ->leftJoin('games', function ($join): void {
+                $join->on('games.id', '=', 'community_posts.game_id')
+                    ->where('games.site_key', config('gali.site_key'));
+                if (Schema::hasColumn('games', 'deleted_at')) {
+                    $join->whereNull('games.deleted_at');
+                }
+            })
+            ->leftJoin('users', function ($join): void {
+                $join->on('users.id', '=', 'community_posts.user_id')
+                    ->where('users.site_key', config('gali.site_key'));
+                if (Schema::hasColumn('users', 'deleted_at')) {
+                    $join->whereNull('users.deleted_at');
+                }
+            })
+            ->select(['community_posts.id', 'community_posts.title', 'community_posts.body', 'community_posts.created_at', 'games.name as game_name', 'users.name as author_name'])
+            ->firstOrFail();
+        $replies = $this->scoped('community_replies')->where('community_replies.community_post_id', $postId)
+            ->leftJoin('users', function ($join): void {
+                $join->on('users.id', '=', 'community_replies.user_id')
+                    ->where('users.site_key', config('gali.site_key'));
+                if (Schema::hasColumn('users', 'deleted_at')) {
+                    $join->whereNull('users.deleted_at');
+                }
+            })
+            ->select(['community_replies.id', 'community_replies.body', 'community_replies.created_at', 'users.name as author_name'])
+            ->orderBy('community_replies.created_at')->get();
+        $siteName = config('gali.site_name');
+        return view('frontend.guessing-show', compact('post', 'replies', 'siteName'));
     }
 
     public function chart(Request $request)
