@@ -121,7 +121,7 @@ class DynamicGaliFrontendTest extends TestCase
             'created_at' => now(), 'updated_at' => now(),
         ]);
 
-        app(\\Database\\Seeders\\GaliDisawarDemoSeeder::class)->run();
+        app(\Database\Seeders\GaliDisawarDemoSeeder::class)->run();
         $firstCounts = [
             'games' => DB::table('games')->where('site_key', 'galidisawar')->count(),
             'results' => DB::table('results')->where('site_key', 'galidisawar')->count(),
@@ -130,7 +130,7 @@ class DynamicGaliFrontendTest extends TestCase
             'pages' => DB::table('pages')->where('site_key', 'galidisawar')->count(),
         ];
 
-        app(\\Database\\Seeders\\GaliDisawarDemoSeeder::class)->run();
+        app(\Database\Seeders\GaliDisawarDemoSeeder::class)->run();
         $secondCounts = [
             'games' => DB::table('games')->where('site_key', 'galidisawar')->count(),
             'results' => DB::table('results')->where('site_key', 'galidisawar')->count(),
