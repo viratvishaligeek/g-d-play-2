@@ -1,6 +1,6 @@
 @extends('frontend.layout')
 @section('title', 'Market Guide & Guessing Forum | '.$siteName)
-@section('canonical', config('gali.canonical_url').'/guessing')
+@section('canonical', $canonical)
 @section('content')
 <section class="freshness-wrap"><div class="freshness-headline">Market Guide & Community Forum</div><div class="freshness-updated">Read the market guide and browse administrator-approved community posts.</div></section>
 <section class="guessing-intro">
