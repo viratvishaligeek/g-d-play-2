@@ -1,0 +1,5 @@
+User-Agent: *
+Allow: /
+Disallow: /preview/
+
+Sitemap: https://www.satta-king-online.com/sitemap.xml
