@@ -40,5 +40,5 @@
     @forelse($games as $game)<article class="market-card"><a class="market-card-head" href="{{ route('market', $game->slug) }}"><span class="market-card-name">{{ $game->name }}</span></a><div class="market-card-body"><a class="market-arrow" href="{{ route('market', $game->slug) }}">View result history →</a></div></article>@empty<p>No active markets are available.</p>@endforelse
 </div></section>
 
-<section class="seo-box"><div class="result-heading"><h2>Helpful Links</h2></div><div class="seo-jump"><a href="{{ route('home') }}">Live Results</a><a href="{{ route('charts.index') }}">Monthly Charts</a><a href="{{ route('page','privacy-policy') }}">Privacy Policy</a><a href="{{ route('page','terms-conditions') }}">Terms & Conditions</a><a href="{{ route('page','disclaimer') }}">Disclaimer</a></div></section>
+<section class="seo-box"><div class="result-heading"><h2>Helpful Links</h2></div><div class="seo-jump"><a href="{{ route('home') }}">Live Results</a><a href="{{ route('charts.index') }}">Monthly Charts</a><a href="{{ route('page','privacy-policy') }}">Privacy Policy</a><a href="{{ route('page','terms-and-conditions') }}">Terms & Conditions</a><a href="{{ route('page','disclaimer') }}">Disclaimer</a></div></section>
 @endsection
