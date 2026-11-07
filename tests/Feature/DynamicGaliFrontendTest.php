@@ -113,6 +113,60 @@ class DynamicGaliFrontendTest extends TestCase
         $this->get('/private-page')->assertNotFound();
     }
 
+    public function test_guessing_forum_reads_only_approved_posts_and_replies_for_this_site(): void
+    {
+        Schema::table('users', function (Blueprint $table): void {
+            $table->string('site_key')->default('galidisawar');
+        });
+        Schema::create('community_posts', function (Blueprint $table): void {
+            $table->id(); $table->string('site_key'); $table->unsignedBigInteger('game_id');
+            $table->unsignedBigInteger('user_id'); $table->string('title', 120); $table->text('body');
+            $table->string('status', 16)->default('pending'); $table->timestamps();
+        });
+        Schema::create('community_replies', function (Blueprint $table): void {
+            $table->id(); $table->string('site_key'); $table->unsignedBigInteger('community_post_id');
+            $table->unsignedBigInteger('user_id'); $table->text('body'); $table->timestamps();
+        });
+
+        $gameId = DB::table('games')->insertGetId([
+            'site_key' => 'galidisawar', 'name' => 'Forum Demo Market', 'slug' => 'forum-demo',
+            'status' => 'active', 'serial' => 1, 'result_time' => '23:00:00',
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+        $userId = DB::table('users')->insertGetId([
+            'site_key' => 'galidisawar', 'name' => 'Demo Member',
+            'email' => 'demo-member@example.test', 'password' => bcrypt('secret'),
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+        $otherUserId = DB::table('users')->insertGetId([
+            'site_key' => 'play-online-khaiwal', 'name' => 'Private Member',
+            'email' => 'private-member@example.test', 'password' => bcrypt('secret'),
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+        $postId = DB::table('community_posts')->insertGetId([
+            'site_key' => 'galidisawar', 'game_id' => $gameId, 'user_id' => $userId,
+            'title' => 'Approved community topic', 'body' => 'This is a site-scoped approved discussion.',
+            'status' => 'approved', 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        DB::table('community_posts')->insert([
+            'site_key' => 'play-online-khaiwal', 'game_id' => $gameId, 'user_id' => $otherUserId,
+            'title' => 'Private site topic', 'body' => 'This must not be visible.',
+            'status' => 'approved', 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        DB::table('community_replies')->insert([
+            'site_key' => 'galidisawar', 'community_post_id' => $postId, 'user_id' => $userId,
+            'body' => 'Visible demo reply.', 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        DB::table('community_replies')->insert([
+            'site_key' => 'play-online-khaiwal', 'community_post_id' => $postId, 'user_id' => $otherUserId,
+            'body' => 'Private reply must not leak.', 'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        $this->get('/guessing')->assertOk()->assertSee('Approved community topic')->assertDontSee('Private site topic');
+        $this->get('/guessing/'.$postId)->assertOk()->assertSee('This is a site-scoped approved discussion.')
+            ->assertSee('Visible demo reply.')->assertDontSee('Private reply must not leak.');
+    }
+
     public function test_market_chart_and_json_chart_endpoint_use_site_scoped_game(): void
     {
         $gameId = DB::table('games')->insertGetId([
