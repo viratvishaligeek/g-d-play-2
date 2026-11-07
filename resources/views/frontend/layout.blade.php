@@ -17,9 +17,6 @@
     @if(!empty($siteSettings['og_image_url']))<meta property="og:image" content="{{ $siteSettings['og_image_url'] }}">@endif
     <meta name="twitter:card" content="{{ $siteSettings['twitter_card'] ?? 'summary_large_image' }}">
     @if(!empty($siteSettings['og_image_url']))<meta name="twitter:image" content="{{ $siteSettings['og_image_url'] }}">@endif
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('frontend/css/theme-base.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/css/theme-fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/css/site-theme.css') }}">
