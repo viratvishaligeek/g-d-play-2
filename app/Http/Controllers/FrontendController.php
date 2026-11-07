@@ -145,7 +145,10 @@ class FrontendController extends Controller
             $sections = $sectionQuery->orderBy('id')->get();
             $sections->each(function ($section): void {
                 $section->image_url = $section->image
-                    ? Storage::disk('public')->url($section->image)
+                    ? (filter_var($section->image, FILTER_VALIDATE_URL)
+                        && in_array(parse_url($section->image, PHP_URL_SCHEME), ['http', 'https'], true)
+                            ? $section->image
+                            : Storage::disk('public')->url($section->image))
                     : null;
                 $section->safe_button_url = $this->safeFrontendUrl($section->button_url);
             });
