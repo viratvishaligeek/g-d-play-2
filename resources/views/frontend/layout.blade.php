@@ -45,10 +45,10 @@
             @isset($navPages) @foreach($navPages as $navPage)
                 <a class="site-nav__link {{ request()->routeIs('page') && request()->route('slug') === $navPage->slug ? 'is-active' : '' }}" href="{{ route('page', $navPage->slug) }}">{{ $navPage->name }}</a>
             @endforeach @endisset
-            @if(!empty($siteSettings['header_cta_url']) && !empty($siteSettings['header_cta_label']))
+            @if(!empty($siteSettings['header_cta_url_safe']) && !empty($siteSettings['header_cta_label']))
                 <a class="site-nav__cta" href="{{ $siteSettings['header_cta_url'] }}" @if(str_starts_with($siteSettings['header_cta_url'], 'http')) target="_blank" rel="noopener noreferrer" @endif>{{ $siteSettings['header_cta_label'] }}</a>
-            @elseif(!empty($siteSettings['social_whatsapp']))
-                <a class="site-nav__cta" href="{{ $siteSettings['social_whatsapp'] }}" target="_blank" rel="noopener noreferrer">Contact Us</a>
+            @elseif(!empty($siteSettings['social_whatsapp_safe']))
+                <a class="site-nav__cta" href="{{ $siteSettings['social_whatsapp_safe'] }}" target="_blank" rel="noopener noreferrer">Contact Us</a>
             @endif
         </nav>
     </div>
@@ -99,7 +99,7 @@
     </div>
 </footer>
 @if(($siteSettings['sticky_social_enabled'] ?? '1') !== '0')
-    @if(filled($siteSettings['social_telegram'] ?? null))<a class="sticky-social sticky-social--telegram" href="{{ $siteSettings['social_telegram'] }}" target="_blank" rel="noopener noreferrer" aria-label="Join Telegram"><span>✈</span></a>@endif
+    @if(filled($siteSettings['social_telegram_safe'] ?? null))<a class="sticky-social sticky-social--telegram" href="{{ $siteSettings['social_telegram'] }}" target="_blank" rel="noopener noreferrer" aria-label="Join Telegram"><span>✈</span></a>@endif
     @if(filled($siteSettings['social_whatsapp'] ?? null))<a class="sticky-social sticky-social--whatsapp" href="{{ $siteSettings['social_whatsapp'] }}" target="_blank" rel="noopener noreferrer" aria-label="Contact on WhatsApp"><span>◉</span></a>@endif
 @endif
 <script src="{{ asset('frontend/js/site-theme.js') }}" defer></script>
