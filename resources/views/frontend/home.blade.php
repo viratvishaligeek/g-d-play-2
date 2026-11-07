@@ -16,10 +16,10 @@
         <p>{{ $siteSettings['homepage_intro'] ?? 'Browse published market results, compare recent records, and open date-wise monthly charts.' }}</p>
     </div>
     <div class="homepage-main-actions">
-        @php($primaryUrl = $siteSettings['homepage_primary_cta_url'] ?? '/chart')
-        @php($secondaryUrl = $siteSettings['homepage_secondary_cta_url'] ?? '#markets')
-        @if(filled($siteSettings['homepage_primary_cta_label'] ?? null) || filled($siteSettings['app_download_url'] ?? null))
-            <a class="buttonb bggreen" href="{{ filled($siteSettings['homepage_primary_cta_url'] ?? null) ? $primaryUrl : $siteSettings['app_download_url'] }}" @if(str_starts_with($primaryUrl, 'http')) target="_blank" rel="noopener noreferrer" @endif>{{ $siteSettings['homepage_primary_cta_label'] ?? 'Download App' }} ↗</a>
+        @php($primaryUrl = $siteSettings['homepage_primary_cta_url_safe'] ?? '/chart')
+        @php($secondaryUrl = $siteSettings['homepage_secondary_cta_url_safe'] ?? '#markets')
+        @if(filled($siteSettings['homepage_primary_cta_label'] ?? null) || filled($siteSettings['app_download_url_safe'] ?? null))
+            <a class="buttonb bggreen" href="{{ filled($siteSettings['homepage_primary_cta_url'] ?? null) ? $primaryUrl : $siteSettings['app_download_url_safe'] }}" @if(str_starts_with($primaryUrl, 'http')) target="_blank" rel="noopener noreferrer" @endif>{{ $siteSettings['homepage_primary_cta_label'] ?? 'Download App' }} ↗</a>
         @endif
         <a class="buttonb bgblue" href="{{ $secondaryUrl }}">{{ $siteSettings['homepage_secondary_cta_label'] ?? 'Explore Result Charts' }} ↗</a>
         <a class="buttonb" href="{{ route('charts.index') }}">All Markets ↗</a>
@@ -76,8 +76,8 @@
     <div class="result-heading"><h2>{{ $siteSettings['app_section_heading'] ?? 'Stay Updated' }}</h2><p>{{ $siteSettings['app_section_description'] ?? 'Open the result charts or follow the official channels configured by the site administrator.' }}</p></div>
     <div class="btn-wrap">
         @if(filled($siteSettings['app_download_url'] ?? null))<a class="btn whatsapp" href="{{ $siteSettings['app_download_url'] }}" target="_blank" rel="noopener noreferrer">{{ $siteSettings['app_download_label'] ?? 'Download App Now' }}</a>@endif
-        @if(filled($siteSettings['social_telegram'] ?? null))<a class="btn whatsapp" href="{{ $siteSettings['social_telegram'] }}" target="_blank" rel="noopener noreferrer">Join Telegram</a>@endif
-        @if(filled($siteSettings['social_whatsapp'] ?? null))<a class="btn whatsapp" href="{{ $siteSettings['social_whatsapp'] }}" target="_blank" rel="noopener noreferrer">WhatsApp</a>@endif
+        @if(filled($siteSettings['social_telegram'] ?? null))<a class="btn whatsapp" href="{{ $siteSettings['social_telegram_safe'] }}" target="_blank" rel="noopener noreferrer">Join Telegram</a>@endif
+        @if(filled($siteSettings['social_whatsapp'] ?? null))<a class="btn whatsapp" href="{{ $siteSettings['social_whatsapp_safe'] }}" target="_blank" rel="noopener noreferrer">WhatsApp</a>@endif
         @if(filled($siteSettings['contact_phone'] ?? null))<a class="btn call" href="tel:{{ preg_replace('/[^0-9+]/','',$siteSettings['contact_phone']) }}">Call Now</a>@endif
     </div>
 </section>
