@@ -86,8 +86,8 @@
         </div>
         <div class="site-footer__social">
             @foreach(['facebook'=>'Facebook','instagram'=>'Instagram','youtube'=>'YouTube','telegram'=>'Telegram','whatsapp'=>'WhatsApp'] as $key=>$label)
-                @if(filled($siteSettings['social_'.$key] ?? null) && filter_var($siteSettings['social_'.$key], FILTER_VALIDATE_URL))
-                    <a href="{{ $siteSettings['social_'.$key] }}" target="_blank" rel="noopener noreferrer">{{ $label }}</a>
+                @if(filled($siteSettings['social_'.$key.'_safe'] ?? null) && filter_var($siteSettings['social_'.$key.'_safe'], FILTER_VALIDATE_URL))
+                    <a href="{{ $siteSettings['social_'.$key.'_safe'] }}" target="_blank" rel="noopener noreferrer">{{ $label }}</a>
                 @endif
             @endforeach
         </div>
