@@ -35,6 +35,28 @@ The frontend applies `GALI_SITE_KEY` to every site-owned table that has a `site_
 - `/{slug}` — site-scoped, active CMS page.
 - `POST /get_result` — JSON month chart data for the selected active market.
 
+## Theme completeness and dynamic admin content
+
+The frontend reads the existing site-scoped settings for title, tagline, logo, favicon, Open Graph image, announcement ticker, homepage headings/copy, header and homepage CTA buttons, app download, contact details, social links, SEO text, footer and disclaimer. The original header, ticker, result board, quick links, market cards, managed section positions, app/contact block, monthly charts, historical archive, guide, SEO copy, FAQ and legal footer are rendered as Blade components/views.
+
+Homepage sections use the existing `home_pages` records. The companion Admin change in `final-game-apk` PR adds section image, alt text, CTA label/URL/style, layout and display-order controls. Apply that migration before using those new editor controls. Existing sections continue to render without those optional fields.
+
+The original theme export has no inline homepage `<img>` elements; the theme's visual identity is primarily CSS. Dynamic logo/favicon/OG images come from the existing Settings upload fields, while section images come from Home Page Sections. The guessing page uses the existing theme typography and CSS and does not invent forum posts.
+
+## Demo preview data
+
+The Admin may be empty for the new site. To populate a disposable preview with clearly marked sample rows, first apply the shared `final-game-apk` multi-site migrations and the companion homepage presentation migration, then configure the Gali Disawar DB connection and run:
+
+```bash
+php artisan gali:demo-seed
+```
+
+The command inserts only rows scoped to `site_key=galidisawar`, uses `demo-*` market slugs and `[DEMO]` homepage/FAQ labels, never updates existing market/result rows, and refuses to run in `APP_ENV=production` unless explicitly forced. It adds sample records for the last few days of the current month so the homepage board and charts are populated.
+
+If you prefer phpMyAdmin, import `database/demo/gali-disawar-demo.sql`. To remove only the demo markets, results, sections, FAQs, pages and demo settings, use `database/demo/gali-disawar-demo-cleanup.sql`. The cleanup script intentionally leaves unrelated site data untouched. The demo logo and favicon are in `public/logos/`.
+
+Do not use demo rows as live result data. Replace demo copy, links, sample sections and branding before launch.
+
 ## Theme
 
 The exported theme's Tailwind utility stylesheet, site theme CSS and animation stylesheet are served from `public/frontend/css`. The Blade layout reconstructs the page structure instead of serving Next.js server-rendered markup or its React runtime. Google Fonts are loaded for Outfit and Noto Sans Devanagari.
