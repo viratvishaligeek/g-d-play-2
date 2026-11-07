@@ -1,6 +1,6 @@
 @extends('frontend.layout')
 @section('title', 'Market Record Charts | '.$siteName)
-@section('canonical', config('gali.canonical_url').'/chart')
+@section('canonical', $canonical)
 @section('content')
 <section class="freshness-wrap"><div class="freshness-headline">Market Record Charts</div><div class="freshness-updated">Browse all active markets and every year/month with saved result records.</div></section>
 <section class="seo-box"><div class="result-heading"><h1>Satta King Record Chart</h1><p>Select a market, then choose an available year and month. Only months with stored records are linked.</p></div></section>
