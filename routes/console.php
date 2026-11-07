@@ -15,7 +15,7 @@ Artisan::command('gali:demo-seed {--force : Allow adding demo rows when APP_ENV=
     }
 
     $exitCode = $this->call('db:seed', [
-        '--class' => \\Database\\Seeders\\GaliDisawarDemoSeeder::class,
+        '--class' => \Database\Seeders\GaliDisawarDemoSeeder::class,
         '--force' => (bool) $this->option('force'),
     ]);
 
