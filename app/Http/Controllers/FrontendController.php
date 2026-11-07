@@ -8,6 +8,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class FrontendController extends Controller
@@ -32,8 +33,41 @@ class FrontendController extends Controller
             : collect();
         $settings = Schema::hasTable('settings') ? $this->scoped('settings')->pluck('value', 'option')->all() : [];
         view()->share('navPages', $pages);
+        $siteName = filled($settings['title'] ?? null) ? $settings['title'] : config('gali.site_name');
+        $settings['title'] = $siteName;
+        $settings['site_tagline'] = $settings['site_tagline'] ?? '';
+        $settings['site_logo_url'] = $this->logoUrl($settings['site_logo'] ?? null);
+        $settings['site_favicon_url'] = $this->logoUrl($settings['site_favicon'] ?? null);
+        $settings['og_image_url'] = $this->logoUrl($settings['og_image'] ?? null);
         view()->share('siteSettings', $settings);
         return $settings;
+    }
+
+    private function logoUrl(?string $filename): ?string
+    {
+        if (!$filename) {
+            return null;
+        }
+
+        $safeName = basename($filename);
+        return $safeName !== '' && is_file(public_path('logos/'.$safeName))
+            ? asset('logos/'.$safeName)
+            : null;
+    }
+
+    private function safeFrontendUrl(?string $value): ?string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+        if (str_starts_with($value, '/') || str_starts_with($value, '#')) {
+            return $value;
+        }
+        return filter_var($value, FILTER_VALIDATE_URL)
+            && in_array(parse_url($value, PHP_URL_SCHEME), ['http', 'https'], true)
+                ? $value
+                : null;
     }
 
     private function gameBusinessDate(object $game, Carbon $now): string
@@ -104,7 +138,17 @@ class FrontendController extends Controller
         $sections = collect();
         if (Schema::hasTable('home_pages')) {
             $this->scoped('home_pages'); // Require site ownership before using the Eloquent section model.
-            $sections = HomePageSection::query()->where('status', 'active')->orderBy('id')->get();
+            $sectionQuery = HomePageSection::query()->where('status', 'active');
+            if (Schema::hasColumn('home_pages', 'display_order')) {
+                $sectionQuery->orderBy('display_order');
+            }
+            $sections = $sectionQuery->orderBy('id')->get();
+            $sections->each(function ($section): void {
+                $section->image_url = $section->image
+                    ? Storage::disk('public')->url($section->image)
+                    : null;
+                $section->safe_button_url = $this->safeFrontendUrl($section->button_url);
+            });
         }
         $faqs = Schema::hasTable('faqs') ? $this->scoped('faqs')->latest('id')->get() : collect();
 
@@ -136,7 +180,7 @@ class FrontendController extends Controller
             }
         }
 
-        $siteName = config('gali.site_name');
+        $siteName = $siteSettings['title'] ?? config('gali.site_name');
         $canonicalBase = filled($siteSettings['canonical_url'] ?? null) ? $siteSettings['canonical_url'] : config('gali.canonical_url');
         $canonical = rtrim((string) $canonicalBase, '/') . '/';
         return view('frontend.home', compact('frontendGames', 'featuredGame', 'sections', 'faqs', 'chartTables', 'year', 'month', 'daysInMonth', 'siteName', 'canonical'));
@@ -161,7 +205,7 @@ class FrontendController extends Controller
             $record = $records->get($day);
             $rows[] = ['date' => $date, 'number' => $date->lte($now->copy()->startOfDay()) && $record && filled($record->number) ? (string) $record->number : '--'];
         }
-        $siteName = config('gali.site_name');
+        $siteName = $siteSettings['title'] ?? config('gali.site_name');
         $canonicalBase = filled($siteSettings['canonical_url'] ?? null) ? $siteSettings['canonical_url'] : config('gali.canonical_url');
         $canonical = rtrim((string) $canonicalBase, '/') . '/result/' . $game->slug;
         return view('frontend.market', compact('game', 'rows', 'year', 'month', 'siteName', 'canonical'));
@@ -169,11 +213,23 @@ class FrontendController extends Controller
 
     public function chartsIndex()
     {
-        $this->shareNavigation();
+        $siteSettings = $this->shareNavigation();
         $games = $this->scoped('games')->where('status', 'active')->orderBy('serial')->orderBy('id')
             ->get(['id', 'name', 'slug', 'result_time']);
-        $siteName = config('gali.site_name');
-        return view('frontend.charts', compact('games', 'siteName'));
+        $gameIds = $games->pluck('id')->all();
+        $archiveByGame = collect();
+        if ($gameIds) {
+            $dates = $this->scoped('results')->whereIn('game_id', $gameIds)->where('type', 'jodi')
+                ->whereNotNull('number')->where('number', '<>', '')
+                ->orderBy('game_date')->get(['game_id', 'game_date']);
+            $archiveByGame = $dates->groupBy('game_id')->map(function ($rows) {
+                return $rows->map(fn ($row) => Carbon::parse($row->game_date))
+                    ->groupBy(fn ($date) => $date->year)
+                    ->map(fn ($yearRows) => $yearRows->map(fn ($date) => $date->month)->unique()->sort()->values());
+            });
+        }
+        $siteName = $siteSettings['title'] ?? config('gali.site_name');
+        return view('frontend.charts', compact('games', 'archiveByGame', 'siteName'));
     }
 
     public function page(string $slug)
@@ -188,6 +244,14 @@ class FrontendController extends Controller
         return response()
             ->view('frontend.page', compact('page', 'title', 'description', 'canonical'))
             ->header('X-Robots-Tag', !empty($page->noindex) ? 'noindex, follow' : 'index, follow');
+    }
+
+    public function guessingIndex()
+    {
+        $siteSettings = $this->shareNavigation();
+        $games = $this->scoped('games')->where('status', 'active')->orderBy('serial')->get(['name', 'slug']);
+        $siteName = $siteSettings['title'] ?? config('gali.site_name');
+        return view('frontend.guessing', compact('games', 'siteName'));
     }
 
     public function chart(Request $request)
