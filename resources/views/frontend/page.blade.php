@@ -1,5 +1,5 @@
 @extends('frontend.layout')
-@section('title', $title.' | '.config('gali.site_name'))
+@section('title', $title.' | '.$siteSettings['title'] ?? config('gali.site_name'))
 @section('description', $description)
 @section('canonical', $canonical)
 @section('content')

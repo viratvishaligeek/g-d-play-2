@@ -60,6 +60,21 @@ return [
             'report' => false,
         ],
 
+        'r2-public' => [
+            'driver' => 's3',
+            'key' => env('R2_ACCESS_KEY_ID'),
+            'secret' => env('R2_SECRET_ACCESS_KEY'),
+            'region' => env('R2_REGION', 'auto'),
+            'bucket' => env('R2_BUCKET'),
+            'url' => env('R2_PUBLIC_URL'),
+            'endpoint' => env('R2_ENDPOINT'),
+            'use_path_style_endpoint' => true,
+            'root' => 'public',
+            'visibility' => 'public',
+            'throw' => true,
+            'report' => true,
+        ],
+
     ],
 
     /*
