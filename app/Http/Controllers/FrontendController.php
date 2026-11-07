@@ -249,7 +249,9 @@ class FrontendController extends Controller
             });
         }
         $siteName = $siteSettings['title'] ?? config('gali.site_name');
-        return view('frontend.charts', compact('games', 'archiveByGame', 'siteName'));
+        $canonicalBase = filled($siteSettings['canonical_url'] ?? null) ? $siteSettings['canonical_url'] : config('gali.canonical_url');
+        $canonical = rtrim((string) $canonicalBase, '/') . '/chart';
+        return view('frontend.charts', compact('games', 'archiveByGame', 'siteName', 'canonical'));
     }
 
     public function page(string $slug)
@@ -271,7 +273,7 @@ class FrontendController extends Controller
         $siteSettings = $this->shareNavigation();
         $games = $this->scoped('games')->where('status', 'active')->orderBy('serial')->get(['name', 'slug']);
         $posts = collect();
-        if (Schema::hasTable('community_posts') && Schema::hasTable('users')) {
+        if (Schema::hasTable('community_posts') && Schema::hasTable('users') && Schema::hasColumn('community_posts', 'site_key') && Schema::hasColumn('users', 'site_key') && Schema::hasColumn('games', 'site_key')) {
             $posts = $this->scoped('community_posts')->where('community_posts.status', 'approved')
                 ->leftJoin('games', function ($join): void {
                     $join->on('games.id', '=', 'community_posts.game_id')
@@ -291,13 +293,15 @@ class FrontendController extends Controller
                 ->orderByDesc('community_posts.created_at')->paginate(10);
         }
         $siteName = $siteSettings['title'] ?? config('gali.site_name');
-        return view('frontend.guessing', compact('games', 'posts', 'siteName'));
+        $canonicalBase = filled($siteSettings['canonical_url'] ?? null) ? $siteSettings['canonical_url'] : config('gali.canonical_url');
+        $canonical = rtrim((string) $canonicalBase, '/') . '/guessing';
+        return view('frontend.guessing', compact('games', 'posts', 'siteName', 'canonical'));
     }
 
     public function guessingShow(int $postId)
     {
         $siteSettings = $this->shareNavigation();
-        abort_unless(Schema::hasTable('community_posts') && Schema::hasTable('community_replies'), 404);
+        abort_unless(Schema::hasTable('community_posts') && Schema::hasTable('community_replies') && Schema::hasTable('users') && Schema::hasColumn('community_posts', 'site_key') && Schema::hasColumn('community_replies', 'site_key') && Schema::hasColumn('users', 'site_key') && Schema::hasColumn('games', 'site_key'), 404);
         $post = $this->scoped('community_posts')->where('community_posts.status', 'approved')
             ->where('community_posts.id', $postId)
             ->leftJoin('games', function ($join): void {
@@ -327,7 +331,9 @@ class FrontendController extends Controller
             ->select(['community_replies.id', 'community_replies.body', 'community_replies.created_at', 'users.name as author_name'])
             ->orderBy('community_replies.created_at')->get();
         $siteName = $siteSettings['title'] ?? config('gali.site_name');
-        return view('frontend.guessing-show', compact('post', 'replies', 'siteName'));
+        $canonicalBase = filled($siteSettings['canonical_url'] ?? null) ? $siteSettings['canonical_url'] : config('gali.canonical_url');
+        $canonical = rtrim((string) $canonicalBase, '/') . '/guessing/' . $post->id;
+        return view('frontend.guessing-show', compact('post', 'replies', 'siteName', 'canonical'));
     }
 
     public function chart(Request $request)
