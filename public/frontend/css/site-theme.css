@@ -1681,7 +1681,6 @@
 
 /* Dynamic theme controls and restored original content modules. */
 .site-brand__logo{display:block;max-width:170px;max-height:48px;width:auto;height:auto;object-fit:contain}
-.site-nav-toggle{display:none}
 .site-footer__logo{display:block;max-width:180px;max-height:52px;width:auto;height:auto;object-fit:contain}
 .site-footer__tagline{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#9ca3af}
 .site-footer__contacts,.site-footer__social{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px}
@@ -1724,11 +1723,6 @@
 .guessing-intro h1{font-size:clamp(22px,4vw,32px);font-weight:1000}
 .guessing-intro p{margin:8px 0;line-height:1.7}
 @media(max-width:640px){
- .site-header__inner{flex-wrap:wrap}
- .site-nav-toggle{display:flex;flex-direction:column;gap:4px;justify-content:center;align-items:center;width:38px;height:36px;border:1px solid #d1d5db;border-radius:9px;background:#fff}
- .site-nav-toggle span{display:block;width:18px;height:2px;background:#111827;border-radius:2px}
- .site-nav{display:none;flex:0 0 100%;width:100%;max-width:100%;margin:0;padding:8px 0;flex-wrap:wrap;overflow:visible;justify-content:flex-start}
- .site-nav.is-open{display:flex}
  .site-brand__logo{max-width:138px;max-height:40px}
  .homepage-managed-inner{display:block}
  .homepage-managed-media{width:100%;max-width:100%;padding:8px 8px 0}
