@@ -107,7 +107,7 @@ class FrontendController extends Controller
             $latestRows = $this->scoped('results')->whereIn('game_id', $gameIds)->where('type', 'jodi')
                 ->whereNotNull('number')->where('number', '<>', '')
                 ->whereDate('game_date', '<=', $now->toDateString())
-                ->orderByDesc('updated_at')->orderByDesc('created_at')
+                ->orderByDesc('game_date')->orderByDesc('updated_at')->orderByDesc('created_at')
                 ->get(['game_id', 'game_date', 'number', 'updated_at', 'created_at'])->groupBy('game_id');
         }
 
@@ -121,7 +121,7 @@ class FrontendController extends Controller
             return [
                 'id' => $game->id, 'name' => $game->name, 'slug' => $game->slug,
                 'serial' => (int) $game->serial,
-                'latest_at' => $latestRow ? ($latestRow->updated_at ?: $latestRow->created_at) : null,
+                'latest_at' => $latestRow ? (string) $latestRow->game_date : null,
                 'latest_result' => $latestRow && filled($latestRow->number) ? (string) $latestRow->number : '--',
                 'latest_date' => $latestRow ? Carbon::parse($latestRow->game_date)->format('d M Y') : 'No published result',
                 'time' => $game->result_time ? Carbon::parse($game->result_time)->format('h:i A') : '—',
@@ -166,6 +166,14 @@ class FrontendController extends Controller
         foreach ($chartResults as $result) {
             $resultMap[(int) $result->game_id][(int) Carbon::parse($result->game_date)->day] = (string) $result->number;
         }
+        $archiveYears = collect();
+        if ($gameIds) {
+            $archiveYears = $this->scoped('results')->whereIn('game_id', $gameIds)->where('type', 'jodi')
+                ->whereNotNull('number')->where('number', '<>', '')
+                ->distinct()->orderBy('game_date')->pluck('game_date')
+                ->map(fn ($date) => Carbon::parse($date)->year)->unique()->sortDesc()->values();
+        }
+
         $chunkSize = config('gali.chart_chunk_size');
         $tableCount = $games->isEmpty() ? 0 : (int) ceil($games->count() / $chunkSize);
         $chartTables = [];
@@ -183,7 +191,7 @@ class FrontendController extends Controller
         $siteName = $siteSettings['title'] ?? config('gali.site_name');
         $canonicalBase = filled($siteSettings['canonical_url'] ?? null) ? $siteSettings['canonical_url'] : config('gali.canonical_url');
         $canonical = rtrim((string) $canonicalBase, '/') . '/';
-        return view('frontend.home', compact('frontendGames', 'featuredGame', 'sections', 'faqs', 'chartTables', 'year', 'month', 'daysInMonth', 'siteName', 'canonical'));
+        return view('frontend.home', compact('frontendGames', 'featuredGame', 'sections', 'faqs', 'chartTables', 'year', 'month', 'daysInMonth', 'archiveYears', 'siteName', 'canonical'));
     }
 
     public function market(Request $request, string $slug)
