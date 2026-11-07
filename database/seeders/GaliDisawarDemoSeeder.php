@@ -182,7 +182,7 @@ class GaliDisawarDemoSeeder extends Seeder
         $pages = [
             ['name' => 'Disclaimer', 'slug' => 'disclaimer', 'content' => '<h2>Disclaimer</h2><p>This website provides informational result records and historical charts only. Records are not predictions or guarantees. Please follow applicable local laws.</p>'],
             ['name' => 'Privacy Policy', 'slug' => 'privacy-policy', 'content' => '<h2>Privacy Policy</h2><p>Review the site privacy policy and contact the site administrator for privacy questions. Replace this demo copy with your approved policy before launch.</p>'],
-            ['name' => 'Terms & Conditions', 'slug' => 'terms-conditions', 'content' => '<h2>Terms & Conditions</h2><p>Use the site responsibly and follow applicable laws. Historical records are informational and do not guarantee future outcomes.</p>'],
+            ['name' => 'Terms & Conditions', 'slug' => 'terms-and-conditions', 'content' => '<h2>Terms & Conditions</h2><p>Use the site responsibly and follow applicable laws. Historical records are informational and do not guarantee future outcomes.</p>'],
         ];
         foreach ($pages as $index => $page) {
             $exists = DB::table('pages')->where('site_key', $siteKey)->where('slug', $page['slug'])->exists();
