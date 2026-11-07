@@ -39,6 +39,9 @@ class FrontendController extends Controller
         $settings['site_logo_url'] = $this->logoUrl($settings['site_logo'] ?? null);
         $settings['site_favicon_url'] = $this->logoUrl($settings['site_favicon'] ?? null);
         $settings['og_image_url'] = $this->logoUrl($settings['og_image'] ?? null);
+        foreach (['header_cta_url', 'homepage_primary_cta_url', 'homepage_secondary_cta_url', 'social_facebook', 'social_whatsapp', 'social_instagram', 'social_youtube', 'social_telegram', 'app_download_url'] as $urlKey) {
+            $settings[$urlKey.'_safe'] = $this->safeFrontendUrl($settings[$urlKey] ?? null);
+        }
         view()->share('siteSettings', $settings);
         return $settings;
     }
