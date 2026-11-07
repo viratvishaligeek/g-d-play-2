@@ -1,6 +1,6 @@
 @extends('frontend.layout')
 @section('title', $post->title.' | '.$siteName)
-@section('canonical', config('gali.canonical_url').'/guessing/'.$post->id)
+@section('canonical', $canonical)
 @section('content')
 <section class="freshness-wrap"><div class="freshness-headline">Community Discussion</div><div class="freshness-updated"><a href="{{ route('guessing') }}">← Back to Guessing Forum</a></div></section>
 <article class="forum-post forum-post-detail">
