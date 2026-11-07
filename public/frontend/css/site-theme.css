@@ -1752,3 +1752,10 @@
 .forum-reply p{font-size:13px;line-height:1.7;white-space:pre-wrap}
 .forum-pagination{display:flex;justify-content:center;margin:16px 0}
 @media(max-width:520px){.forum-post-head{align-items:flex-start}.forum-meta{max-width:110px;text-align:center;white-space:normal}.forum-post-body{padding:12px}}
+
+
+.guessing-intro{display:flex;align-items:center;gap:22px}
+.guessing-hero-media{flex:0 0 210px;max-width:210px}
+.guessing-hero-media img{display:block;width:100%;height:auto;object-fit:contain}
+.guessing-hero-copy{flex:1;min-width:0}
+@media(max-width:640px){.guessing-intro{display:block}.guessing-hero-media{max-width:150px;margin:0 auto 14px}.guessing-hero-copy{text-align:left}}
