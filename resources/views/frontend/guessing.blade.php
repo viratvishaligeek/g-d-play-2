@@ -3,7 +3,7 @@
 @section('canonical', $canonical)
 @section('content')
 <section class="freshness-wrap"><div class="freshness-headline">Market Guide & Community Forum</div><div class="freshness-updated">Read the market guide and browse administrator-approved community posts.</div></section>
-<section class="guessing-intro">
+<section class="guessing-intro"><div class="guessing-hero-media"><img src="{{ asset('frontend/images/guessor.png') }}" alt="Market guessing forum illustration" loading="lazy"></div><div class="guessing-hero-copy">
     <h1>{{ $siteSettings['homepage_guide_heading'] ?? 'Satta Result Guide & Market Records' }}</h1>
     @if(filled($siteSettings['homepage_guide_content'] ?? null))
         <div class="homepage-seo-content">{!! $siteSettings['homepage_guide_content'] !!}</div>
