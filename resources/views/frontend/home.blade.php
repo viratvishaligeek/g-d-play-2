@@ -3,6 +3,7 @@
 @section('description', $siteSettings['meta_description'] ?? $siteSettings['site_description'] ?? '')
 @section('canonical', $canonical)
 @section('content')
+@if(filled($siteSettings['site_counter_text'] ?? null))<div class="site-counter"><span id="sconlineimg" title="{{ $siteSettings['site_counter_text'] }}">{{ $siteSettings['site_counter_text'] }}</span></div>@endif
 <section id="freshness" class="freshness-wrap">
     <div class="freshness-headline">{{ $siteSettings['homepage_note_text'] ?? ($siteSettings['title'].' — '.now(config('gali.timezone'))->format('d F Y').' market result records and historical charts.') }}</div>
     <div class="freshness-disclaimer">{{ $siteSettings['disclaimer_content'] ?? 'This website is an independent informational record archive. Displayed records are not predictions or guarantees. Please follow applicable local laws.' }} <a class="freshness-more" href="{{ route('page', 'disclaimer') }}">Read more…</a></div>
@@ -36,15 +37,16 @@
     <div class="resultmaintoday">Market time: {{ $featuredGame['time'] }}</div>
     <a class="market-arrow" href="{{ route('market', $featuredGame['slug']) }}">View {{ $featuredGame['name'] }} record chart →</a>
 </section>
+<div class="result-bottom"><a title="Guessing Forum" href="{{ route('guessing') }}">COMMUNITY & GUESSING FORUM ↗</a></div>
 @endif
 
 <section class="boxc3" id="markets-quick-record">
     <div class="result-heading"><h2>Today Live Results</h2><p>Market time · Yesterday / Today · Full record chart</p></div>
     <div class="quick-record-box"><div class="table-scroll"><table class="quick-record-table">
-        <thead><tr><th>Market</th><th>Time</th><th>Yesterday</th><th>Today</th><th>Record Chart</th></tr></thead>
+        <thead><tr><th>Market</th><th>Time</th><th>Record Chart</th><th>Yesterday</th><th>Today</th></tr></thead>
         <tbody>
         @forelse($frontendGames as $game)
-            <tr><td class="qr-market"><a href="{{ route('market', $game['slug']) }}">{{ $game['name'] }}</a></td><td class="qr-time">{{ $game['time'] }}</td><td>{{ $game['yesterday'] }}</td><td class="qr-val">{{ $game['today'] }}</td><td class="qr-link"><a href="{{ route('market', $game['slug']) }}">Record Chart</a></td></tr>
+            <tr><td class="qr-market"><a href="{{ route('market', $game['slug']) }}">{{ $game['name'] }}</a></td><td class="qr-time">{{ $game['time'] }}</td><td class="qr-link"><a href="{{ route('market', $game['slug']) }}">Record Chart</a></td><td>{{ $game['yesterday'] }}</td><td class="qr-val">{{ $game['today'] }}</td></tr>
         @empty<tr><td colspan="5">No active markets are configured yet.</td></tr>@endforelse
         </tbody>
     </table></div></div>
@@ -61,7 +63,7 @@
     <div class="market-tools"><label class="market-search"><span aria-hidden="true">⌕</span><input id="market-search" type="search" placeholder="Search market name…" aria-label="Search markets"><kbd>/</kbd></label><span class="market-count">{{ $frontendGames->count() }} active markets</span></div>
     <div class="market-list-grid" id="market-grid">
         @forelse($frontendGames as $game)
-            <article class="market-card" data-market-name="{{ strtolower($game['name']) }}">
+            <article class="market-card {{ $featuredGame && $featuredGame['id'] === $game['id'] ? 'market-card--full' : '' }}" data-market-name="{{ strtolower($game['name']) }}">
                 <a class="market-card-head" href="{{ route('market', $game['slug']) }}"><span class="market-card-name">{{ $game['name'] }}</span><span class="market-card-time">{{ $game['time'] }}</span></a>
                 <div class="market-card-body"><div class="market-card-res"><span>Yesterday <b>{{ $game['yesterday'] }}</b></span><span>Today <b>{{ $game['today'] }}</b></span></div><a class="market-arrow" href="{{ route('market', $game['slug']) }}">View monthly chart →</a></div>
             </article>
@@ -80,6 +82,9 @@
         @if(filled($siteSettings['social_whatsapp'] ?? null))<a class="btn whatsapp" href="{{ $siteSettings['social_whatsapp_safe'] }}" target="_blank" rel="noopener noreferrer">WhatsApp</a>@endif
         @if(filled($siteSettings['contact_phone'] ?? null))<a class="btn call" href="tel:{{ preg_replace('/[^0-9+]/','',$siteSettings['contact_phone']) }}">Call Now</a>@endif
     </div>
+    <div class="table-scroll homepage-market-schedule"><table class="khaiwal-table"><thead><tr><th>Market</th><th>Published Result Time</th><th>Record Chart</th></tr></thead><tbody>
+        @foreach($frontendGames as $game)<tr><td>{{ $game['name'] }}</td><td>{{ $game['time'] }}</td><td><a href="{{ route('market',$game['slug']) }}">View Chart</a></td></tr>@endforeach
+    </tbody></table></div>
 </section>
 
 <section class="seo-box quick-record-box" id="charts">
@@ -110,9 +115,17 @@
 </section>
 
 <section class="seo-box" id="seo">
-    <div class="result-heading"><h2>{{ $siteSettings['homepage_seo_heading'] ?? 'About '.$siteSettings['title'].' Results & Records' }}</h2></div>
+    <div class="result-heading"><h2>{{ $siteSettings['homepage_seo_heading'] ?? 'About '.$siteSettings['title'].' Results & Records' }}</h2></div><div class="seo-jump" aria-label="Quick jumps"><a href="#markets-quick-record">Today</a><a href="#records">Old Record</a><a href="{{ route('charts.index') }}">Chart</a><a href="#faq">FAQ</a></div>
     @if(filled($siteSettings['homepage_seo_content'] ?? null))<div class="homepage-seo-content">{!! $siteSettings['homepage_seo_content'] !!}</div>
     @else<p>{{ $siteSettings['site_description'] ?? ($siteSettings['title'].' provides an organized view of published market results, market timings and monthly historical records.') }}</p>@endif
+</section>
+
+<section class="seo-box seo-box--terms" id="terms">
+    <div class="result-heading"><h2>{{ $siteSettings['homepage_terms_heading'] ?? 'Important Result Chart Terms' }}</h2></div>
+    @if(filled($siteSettings['homepage_terms_content'] ?? null))<div class="homepage-seo-content">{!! $siteSettings['homepage_terms_content'] !!}</div>
+    @else
+        <dl class="term-glossary"><div><dt>Jodi (जोड़ी)</dt><dd>A two-digit result value recorded from 00 to 99.</dd></div><div><dt>Market Result</dt><dd>A value saved and published for a market and date in the result archive.</dd></div><div><dt>Monthly Chart</dt><dd>A date-wise view of the stored records for one market and calendar month.</dd></div></dl>
+    @endif
 </section>
 
 <section class="seo-box" id="faq">
