@@ -213,10 +213,16 @@ class FrontendController extends Controller
             $record = $records->get($day);
             $rows[] = ['date' => $date, 'number' => $date->lte($now->copy()->startOfDay()) && $record && filled($record->number) ? (string) $record->number : '--'];
         }
+        $availableArchives = $this->scoped('results')->where('game_id', $game->id)->where('type', 'jodi')
+            ->whereNotNull('number')->where('number', '<>', '')
+            ->orderBy('game_date')->pluck('game_date')
+            ->map(fn ($date) => Carbon::parse($date))
+            ->groupBy(fn ($date) => $date->year)
+            ->map(fn ($yearRows) => $yearRows->map(fn ($date) => $date->month)->unique()->sort()->values());
         $siteName = $siteSettings['title'] ?? config('gali.site_name');
         $canonicalBase = filled($siteSettings['canonical_url'] ?? null) ? $siteSettings['canonical_url'] : config('gali.canonical_url');
         $canonical = rtrim((string) $canonicalBase, '/') . '/result/' . $game->slug;
-        return view('frontend.market', compact('game', 'rows', 'year', 'month', 'siteName', 'canonical'));
+        return view('frontend.market', compact('game', 'rows', 'year', 'month', 'siteName', 'canonical', 'availableArchives'));
     }
 
     public function chartsIndex()
