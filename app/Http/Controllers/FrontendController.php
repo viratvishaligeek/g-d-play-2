@@ -296,7 +296,7 @@ class FrontendController extends Controller
 
     public function guessingShow(int $postId)
     {
-        $this->shareNavigation();
+        $siteSettings = $this->shareNavigation();
         abort_unless(Schema::hasTable('community_posts') && Schema::hasTable('community_replies'), 404);
         $post = $this->scoped('community_posts')->where('community_posts.status', 'approved')
             ->where('community_posts.id', $postId)
@@ -326,7 +326,7 @@ class FrontendController extends Controller
             })
             ->select(['community_replies.id', 'community_replies.body', 'community_replies.created_at', 'users.name as author_name'])
             ->orderBy('community_replies.created_at')->get();
-        $siteName = config('gali.site_name');
+        $siteName = $siteSettings['title'] ?? config('gali.site_name');
         return view('frontend.guessing-show', compact('post', 'replies', 'siteName'));
     }
 
